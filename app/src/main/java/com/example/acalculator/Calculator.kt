@@ -6,7 +6,7 @@ import kotlinx.coroutines.launch
 import net.objecthunter.exp4j.ExpressionBuilder
 import kotlin.math.roundToInt
 
-class Calculator {
+object Calculator {
 
     var display: String = "0"
     private val history = mutableListOf<Operation>()
@@ -44,7 +44,7 @@ class Calculator {
         return display
     }
 
-    fun performOperation(percentage: Boolean): String {
+    fun performOperation(percentage: Boolean, onSaved: () -> Unit): String {
         if (errorActive) {
             display = "0"
         } else {
@@ -65,6 +65,7 @@ class Calculator {
                     }
                     CoroutineScope(Dispatchers.IO).launch {
                         addToHistory(expressionStr, display)
+                        onSaved()
                     }
                 }
             } catch (e: Exception) {

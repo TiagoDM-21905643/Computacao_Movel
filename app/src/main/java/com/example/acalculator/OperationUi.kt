@@ -18,12 +18,4 @@ class OperationUi (
         val sdf = SimpleDateFormat("dd/MM/yyyy - HH:mm:ss")
         return sdf.format(Date(timestamp))
     }
-
-    companion object Factory {
-        fun create(operation: Operation) = OperationUi(
-            operation.expression,
-            operation.result,
-            operation.timestamp
-        )
-    }
 }

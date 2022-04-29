@@ -9,10 +9,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.acalculator.databinding.FragmentHistoryBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 private const val ARG_OPERATIONS = "operations"
 
 class HistoryFragment : Fragment() {
+    private val model = Calculator
     private val adapter = HistoryAdapter(::onOperationClick, ::onOperationLongClick)
     private lateinit var binding: FragmentHistoryBinding
 
@@ -31,6 +35,8 @@ class HistoryFragment : Fragment() {
 
         binding.rvHistoric.layoutManager = LinearLayoutManager(context)
         binding.rvHistoric.adapter = adapter
+
+        model.getHistory { updateHistory(it) }
     }
 
     private fun onOperationClick(operation: OperationUi) {
@@ -40,18 +46,21 @@ class HistoryFragment : Fragment() {
         Toast.makeText(context, operation.getDate(), Toast.LENGTH_LONG).show()
         return false
     }
-    private fun updateHistory(operations: ArrayList<OperationUi>) {
-        adapter.updateItems(operations)
+    private fun updateHistory(operations: List<Operation>) {
+        val history = operations.map { OperationUi(it.expression, it.result, it.timestamp) }
+        CoroutineScope(Dispatchers.Main).launch {
+            showHistory(history.isNotEmpty())
+            adapter.updateItems(history)
+        }
     }
 
-    companion object {
-        @JvmStatic
-        fun newInstance(operations: ArrayList<OperationUi>): HistoryFragment {
-            return HistoryFragment().apply {
-                arguments = Bundle().apply {
-                    putParcelableArrayList(ARG_OPERATIONS, operations)
-                }
-            }
+    private fun showHistory(show: Boolean) {
+        if (show) {
+            binding.rvHistoric.visibility = View.VISIBLE
+            binding.textNoHistoryAvailable.visibility = View.GONE
+        } else {
+            binding.rvHistoric.visibility = View.GONE
+            binding.textNoHistoryAvailable.visibility = View.VISIBLE
         }
     }
 }

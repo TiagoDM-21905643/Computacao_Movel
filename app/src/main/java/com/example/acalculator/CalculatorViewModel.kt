@@ -3,11 +3,12 @@ package com.example.acalculator
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class CalculatorViewModel : ViewModel() {
 
-    private val model = Calculator()
+    private val model = Calculator
 
     fun getDisplayValue(): String {
         return model.display
@@ -21,8 +22,8 @@ class CalculatorViewModel : ViewModel() {
         return model.insertNumber(num)
     }
 
-    fun onClickEquals(percentage: Boolean): String {
-        return model.performOperation(percentage)
+    fun onClickEquals(percentage: Boolean, onSaved: () -> Unit): String {
+        return model.performOperation(percentage, onSaved)
     }
 
     fun onClickClear(): String {
@@ -33,11 +34,7 @@ class CalculatorViewModel : ViewModel() {
         return model.delete()
     }
 
-    fun getHistory(callback: (List<Operation>) -> Unit) {
-        model.getHistory { operations ->
-            CoroutineScope(Dispatchers.Main).launch {
-                callback(operations)
-            }
-        }
+    fun onGetHistory(callback: (List<Operation>) -> Unit) {
+        model.getHistory(callback)
     }
 }

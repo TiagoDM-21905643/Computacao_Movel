@@ -10,13 +10,13 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.acalculator.databinding.FragmentCalculatorBinding
-import net.objecthunter.exp4j.ExpressionBuilder
-import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class CalculatorFragment : Fragment() {
     private lateinit var binding: FragmentCalculatorBinding
     private lateinit var viewModel: CalculatorViewModel
-    private val operations = mutableListOf<Operation>()
     private val adapter = HistoryAdapter(::onOperationClick, ::onOperationLongClick)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -56,7 +56,7 @@ class CalculatorFragment : Fragment() {
         binding.rvHistoric?.layoutManager = LinearLayoutManager(context)
         binding.rvHistoric?.adapter = adapter
 
-        viewModel.getHistory { updateHistory(it) }
+        viewModel.onGetHistory { updateHistory(it) }
     }
 
     private fun onOperationClick(operation: OperationUi) {
@@ -94,7 +94,12 @@ class CalculatorFragment : Fragment() {
         setBoolValidators()
     }*/
     private fun onClickEquals(percentage: Boolean = false) {
-        binding.textVisor.text = viewModel.onClickEquals(percentage)
+        val displayUpdated = viewModel.onClickEquals(percentage) {
+            CoroutineScope(Dispatchers.Main).launch {
+                viewModel.onGetHistory { updateHistory(it) }
+            }
+        }
+        binding.textVisor.text = displayUpdated
     }
     /*@SuppressLint("SetTextI18n")
     private fun onClickEquals(percentage: Boolean = false) {

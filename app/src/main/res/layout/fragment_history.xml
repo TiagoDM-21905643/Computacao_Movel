@@ -11,4 +11,10 @@
         android:paddingHorizontal="16dp"
         tools:listitem="@layout/item_expression" />
 
+    <TextView
+        android:id="@+id/textNoHistoryAvailable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/no_history_available"/>
+
 </FrameLayout>
