@@ -99,7 +99,7 @@ object Calculator {
     }
 
     fun getHistory(callback: (List<Operation>) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             callback(history.toList())
         }
     }
