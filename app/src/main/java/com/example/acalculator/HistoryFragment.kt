@@ -32,7 +32,7 @@ class HistoryFragment : Fragment() {
     ): View? {
         (requireActivity() as AppCompatActivity).supportActionBar?.title = getString(R.string.history)
         val view = inflater.inflate(R.layout.fragment_history, container, false)
-        model = Calculator(
+        model = CalculatorRoom(
             CalculatorDatabase.getInstance(requireContext()).operationDao()
         )
         binding = FragmentHistoryBinding.bind(view)

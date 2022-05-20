@@ -7,10 +7,10 @@ import net.objecthunter.exp4j.ExpressionBuilder
 import java.util.*
 import kotlin.math.roundToInt
 
-class Calculator(private val dao: OperationDao) {
+abstract class Calculator(private val dao: OperationDao) {
 
     var display: String = "0"
-    private val history = mutableListOf<OperationRoom>()
+    // private val history = mutableListOf<OperationRoom>()
 
     private var lastActionEquals = false
     private var lastActionClear = false
@@ -45,7 +45,7 @@ class Calculator(private val dao: OperationDao) {
         return display
     }
 
-    fun performOperation(percentage: Boolean, onSaved: () -> Unit): String {
+    open fun performOperation(percentage: Boolean, onSaved: () -> Unit): String {
         if (errorActive) {
             display = "0"
         } else {
@@ -63,15 +63,6 @@ class Calculator(private val dao: OperationDao) {
                         display = expression.evaluate().roundToInt().toString()
                     } else {
                         display = expression.evaluate().toString()
-                    }
-                    val operation = OperationRoom(
-                        expression = expressionStr,
-                        result = display,
-                        timestamp = Date().time
-                    )
-                    CoroutineScope(Dispatchers.IO).launch {
-                        dao.insert(operation)
-                        onSaved()
                     }
                 }
             } catch (e: Exception) {
@@ -100,12 +91,20 @@ class Calculator(private val dao: OperationDao) {
         return display
     }
 
-    fun getHistory(callback: (List<OperationUi>) -> Unit) {
+    /*fun getHistory(callback: (List<OperationUi>) -> Unit) {
         CoroutineScope(Dispatchers.Main).launch {
             val operations = dao.getAll()
             callback(operations.map {
                 OperationUi(it.uuid, it.expression, it.result, it.timestamp)
             })
         }
-    }
+    }*/
+
+    abstract fun insertOperations(operations: List<OperationUi>, onFinished: (List<OperationUi>) -> Unit)
+    abstract fun getLastOperation(callback: (String) -> Unit)
+    abstract fun deleteOperation(uuid: String, onFinished: () -> Unit)
+    abstract fun deleteAllOperations(onFinished: () -> Unit)
+    abstract fun getHistory(onFinished: (List<OperationUi>) -> Unit)
+
+
 }
