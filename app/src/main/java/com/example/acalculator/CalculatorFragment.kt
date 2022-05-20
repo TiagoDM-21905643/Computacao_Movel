@@ -142,7 +142,7 @@ class CalculatorFragment : Fragment() {
         binding.textVisor.text = viewModel.onClickDelete()
     }
 
-    private fun updateHistory(operations: List<Operation>) {
-        adapter.updateItems(operations.map { OperationUi(it.expression, it.result, it.timestamp) })
+    private fun updateHistory(operations: List<OperationUi>) {
+        adapter.updateItems(operations)
     }
 }

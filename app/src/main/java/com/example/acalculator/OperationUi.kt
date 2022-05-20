@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat
 
 @Parcelize
 class OperationUi (
+    val uuid: String,
     val expression : String,
     val result : String,
     val timestamp : Long

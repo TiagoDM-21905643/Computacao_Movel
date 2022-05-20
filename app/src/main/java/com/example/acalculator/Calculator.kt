@@ -4,12 +4,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.objecthunter.exp4j.ExpressionBuilder
+import java.util.*
 import kotlin.math.roundToInt
 
-object Calculator {
+class Calculator(private val dao: OperationDao) {
 
     var display: String = "0"
-    private val history = mutableListOf<Operation>()
+    private val history = mutableListOf<OperationRoom>()
 
     private var lastActionEquals = false
     private var lastActionClear = false
@@ -63,8 +64,13 @@ object Calculator {
                     } else {
                         display = expression.evaluate().toString()
                     }
+                    val operation = OperationRoom(
+                        expression = expressionStr,
+                        result = display,
+                        timestamp = Date().time
+                    )
                     CoroutineScope(Dispatchers.IO).launch {
-                        addToHistory(expressionStr, display)
+                        dao.insert(operation)
                         onSaved()
                     }
                 }
@@ -94,13 +100,12 @@ object Calculator {
         return display
     }
 
-    suspend fun addToHistory(expression: String, result: String) {
-        history.add(Operation(expression, result))
-    }
-
-    fun getHistory(callback: (List<Operation>) -> Unit) {
+    fun getHistory(callback: (List<OperationUi>) -> Unit) {
         CoroutineScope(Dispatchers.Main).launch {
-            callback(history.toList())
+            val operations = dao.getAll()
+            callback(operations.map {
+                OperationUi(it.uuid, it.expression, it.result, it.timestamp)
+            })
         }
     }
 }
